@@ -4,11 +4,12 @@ import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/auth.routes.js"
 import cookieParser from "cookie-parser";
-
+import rateLimit from "express-rate-limit";
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+app.use(globalLimiter); 
 
 app.use(cookieParser());
 app.use(
