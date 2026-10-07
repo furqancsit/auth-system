@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+      maxlength:20
     },
     email: {
       type: String,
@@ -18,6 +19,8 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       select: false,
+      minlength: 6,
+      
     },
     googleId: {
       type: String,
@@ -27,17 +30,21 @@ const userSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password") || !this.password) return next();
+userSchema.pre("save", async function () {
+  if (!this.isModified("password") || !this.password) return ;
 
   this.password = await bcrypt.hash(this.password, 10);
-  next();
+  
 });
 
 userSchema.methods.isPasswordCorrect = async function (password) {
+  if (!this.password) {
+    return false;
+  }
+
   return bcrypt.compare(password, this.password);
 };
 

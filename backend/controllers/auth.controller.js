@@ -1,11 +1,5 @@
-import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
-
-const generateToken = (userId) => {
-  return jwt.sign({ userId }, process.env.JWT_SECRET, {
-    expiresIn: "7d",
-  });
-};
+import { generateToken } from "../utils/generateToken.js";
 
 const register = async (req, res) => {
   try {
@@ -59,6 +53,7 @@ const register = async (req, res) => {
       },
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       success: false,
       message: "Something went wrong",
@@ -120,43 +115,42 @@ const login = async (req, res) => {
   }
 };
 
-const getMe = async(req,res) => {
-    try {
-        
-        const user = await User.findById(req.userId);
-        if(!user){
-            return res.status(404).json({
-                success: false,
-                message: "User not found",
-            });
-        }
-
-        return res.status(200).json({
-            success: true,
-            user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-            },
-        });
-    } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: "Something went wrong",
-        });
+const getMe = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
     }
+
+    return res.status(200).json({
+      success: true,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+    });
+  }
 };
 
 const logout = (req, res) => {
-    res.clearCookie("token", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-    });
-    return res.status(200).json({
-      success: true,
-      message: "Logout successful",
-    });
-  }
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  });
+  return res.status(200).json({
+    success: true,
+    message: "Logout successful",
+  });
+};
 
 export { register, login, getMe, logout };
